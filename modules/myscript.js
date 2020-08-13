@@ -12,6 +12,12 @@ let wrongMoves;
 
 let totalTime;
 let count;
+let id;
+
+//options
+let size = 4;
+let difficulty = 4;
+let level = 1;
 
 /**
  * Shuffle the given array
@@ -45,12 +51,12 @@ const shuffle = (arr) => {
  * @param {number} cellId     The id of the cell to hide
  */
 const hideCell = (cellId) => {
-  cells[cellId].setAttribute('cell-status', 'deactivated');
+  cells[cellId].setAttribute("cell-status", "deactivated");
 
-  if (cells[cellId].innerHTML === '-1') {
-    cells[cellId].style.display = 'none';
+  if (cells[cellId].innerHTML === "-1") {
+    cells[cellId].style.display = "none";
   } else {
-    cells[cellId].className = 'cell-disappear-animation gameTable cellGradient';
+    cells[cellId].className = "cell-disappear-animation gameTable cellGradient";
   }
 };
 
@@ -60,7 +66,8 @@ const hideCell = (cellId) => {
  * @param {number} cellId     The id of the cell to check
  * @return {boolean}          Whether the cell with the given id is active or not
  */
-const cellIsActive = (cellId) => cells[cellId].getAttribute('cell-status') !== 'deactivated';
+const cellIsActive = (cellId) =>
+  cells[cellId].getAttribute("cell-status") !== "deactivated";
 
 /**
  * Check if there is no active cell on the left of the cell with the given id
@@ -69,7 +76,8 @@ const cellIsActive = (cellId) => cells[cellId].getAttribute('cell-status') !== '
  * @param {number} cellId     The id of the cell to check
  * @return {boolean}          Whether the cell on the left is free or not
  */
-const isFreeLeft = (cellId) => cellId % tableWidth === 0 || !cellIsActive(cellId - 1);
+const isFreeLeft = (cellId) =>
+  cellId % tableWidth === 0 || !cellIsActive(cellId - 1);
 
 /**
  * Check if there is noa ctive cell on the right of the cell with the given id
@@ -78,7 +86,8 @@ const isFreeLeft = (cellId) => cellId % tableWidth === 0 || !cellIsActive(cellId
  * @param {number} cellId     The id of the cell to check
  * @return {boolean}          Whether the cell on the right is free or not
  */
-const isFreeRight = (cellId) => cellId % tableWidth === tableWidth - 1 || !cellIsActive(cellId + 1);
+const isFreeRight = (cellId) =>
+  cellId % tableWidth === tableWidth - 1 || !cellIsActive(cellId + 1);
 
 /**
  * Check if the cell with the given id can be removed
@@ -95,7 +104,7 @@ const canBeRemoved = (cellId) => isFreeLeft(cellId) || isFreeRight(cellId);
  * @param {number} cellId     The id of the cell to select
  */
 const makeSelected = (cellId) => {
-  cells[cellId].className = 'gameTable selectedCellGradient';
+  cells[cellId].className = "gameTable selectedCellGradient";
   selectedCell = cellId;
 };
 
@@ -105,15 +114,19 @@ const makeSelected = (cellId) => {
  * @param {number} cellId     The id of the cell to deselect
  */
 const makeDeselected = (cellId) => {
-  cells[cellId].className = 'gameTable cellGradient';
+  cells[cellId].className = "gameTable cellGradient";
 };
 
 /**
  * Update move counters UI
  */
 const updateMoveCounters = () => {
-  document.getElementById('correctMovesCounter').innerHTML = `Valid moves: <span style="color:green">${correctMoves}</span> | `;
-  document.getElementById('wrongMovesCounter').innerHTML = `Invalid moves: <span style="color:red">${wrongMoves}</span> | `;
+  document.getElementById(
+    "correctMovesCounter"
+  ).innerHTML = `<br />Valid: <span style="color:green">${correctMoves}</span>  `;
+  document.getElementById(
+    "wrongMovesCounter"
+  ).innerHTML = `<br />Invalid: <span style="color:red">${wrongMoves}</span>  `;
 };
 
 /**
@@ -122,9 +135,9 @@ const updateMoveCounters = () => {
  * @param {string} wat        Whether the move was 'correct' or 'wrong'
  */
 const countMove = (wat) => {
-  if (wat === 'correct') {
+  if (wat === "correct") {
     correctMoves += 1;
-  } else if (wat === 'wrong') {
+  } else if (wat === "wrong") {
     wrongMoves += 1;
   }
 
@@ -137,15 +150,20 @@ const countMove = (wat) => {
  * @param {boolean} win       Whether the user has won or not
  */
 const endGame = (win) => {
-  document.getElementById('theTable').parentNode.removeChild(document.getElementById('theTable'));
-  document.getElementById('bottomBar').parentNode.removeChild(document.getElementById('bottomBar'));
+  document
+  .getElementById("theTable" + difficulty)
+  .parentNode.removeChild(document.getElementById("theTable" + difficulty));
+  //document
+  //.getElementById("bottomBar")
+  //.parentNode.removeChild(document.getElementById("bottomBar"));
 
   const totalMoves = correctMoves + wrongMoves;
 
   let correctPercentage = 0;
   let wrongPercentage = 0;
 
-  if (totalMoves !== 0) {   // to prevent division by 0
+  if (totalMoves !== 0) {
+    // to prevent division by 0
     correctPercentage = (correctMoves / totalMoves) * 100;
     wrongPercentage = 100 - correctPercentage;
 
@@ -154,13 +172,30 @@ const endGame = (win) => {
     wrongPercentage = +wrongPercentage.toFixed(2);
   }
 
-  let message = (win) ? 'You win :D\n' : 'You lose! :(\n\n(╯°□°）╯︵ ƃuoɾɥɐW';
-  message += `\nTotal time: ${totalTime - count} seconds\nValid moves: ${correctPercentage}%\nInvalid moves: ${wrongPercentage}%`;
+  let message = win ? "You win \n" : "You lose! \n";
+  message += `\nTotal time: ${
+    totalTime - count
+  } seconds\nValid moves: ${correctPercentage}%\nInvalid moves: ${wrongPercentage}%`;
 
   // eslint-disable-next-line no-alert
   alert(message);
 
-  window.location = 'index.html';
+  if (message.includes("lose")) return (window.location = "index.html");
+  //increase settings
+  level++;
+
+  if (level !== 6) {
+    totalTime = 2;
+    count = 2;
+    clearInterval(counter);
+    clearInterval(id);
+    document.getElementById("myBar").style.width = "100%";
+    startGame2();
+  } else {
+    clearInterval(counter);
+    clearInterval(id);
+    document.getElementById("winner").style.visibility = "visible";
+  }
 };
 
 /**
@@ -285,10 +320,10 @@ const isStuck = () => {
  * @return {string}           A random hex color
  */
 const getRandomColor = () => {
-  const letters = '0123456789ABCDEF'.split('');
-  let color = '#';
+  const letters = "0123456789ABCDEF".split("");
+  let color = "#";
 
-  for (let i = 0; i < 6; i += 1) {
+  for (let i = 0; i < 9; i += 1) {
     color += letters[Math.round(Math.random() * 15)];
   }
 
@@ -321,14 +356,17 @@ const addCell = (row, innerHTML, counter) => {
   cells[counter] = col;
   col.id = counter;
   col.style.opacity = 0;
-  col.style.border = `2px solid ${colors[innerHTML]}`;
-  col.setAttribute('class', 'gameTable');
-  col.setAttribute('onclick', `cellPressed(${counter});`);
-  col.setAttribute('onmouseover', `mouseOver(${counter});`);
-  col.setAttribute('onmouseout', `mouseOut(${counter});`);
-  col.setAttribute('cell-status', 'active');    // for checking if cell is active
+  col.style.border = `10px solid transparent`;
+  col.style.borderRadius = `10px`
+  col.setAttribute("class", "gameTable");
+  col.setAttribute("onclick", `cellPressed(${counter});`);
+  col.setAttribute("onmouseover", `mouseOver(${counter});`);
+  col.setAttribute("onmouseout", `mouseOut(${counter});`);
+  col.setAttribute("style", `background: URL(./modules/images/${innerHTML}.jpeg) no-repeat center center; height: 100px; width: 100px;`);
+  col.setAttribute("cell-status", "active"); // for checking if cell is active
 
-  if (innerHTML === -1) {                       // for hiding cells when shuffling board
+  if (innerHTML === -1) {
+    // for hiding cells when shuffling board
     hideCell(counter);
   }
 };
@@ -344,7 +382,7 @@ const createTable = (cellNumbers) => {
 
   for (let i = 0; i < tableHeight; i += 1) {
     const row = table.insertRow(i);
-    row.setAttribute('class', 'gameTable');
+    row.setAttribute("class", "gameTable");
     for (let j = 0; j < tableWidth; j += 1) {
       addCell(row, cellNumbers[counter], counter);
       counter += 1;
@@ -359,7 +397,7 @@ const createTable = (cellNumbers) => {
  */
 const animateTable = (i) => {
   cells[i].style.opacity = 1;
-  cells[i].className = 'cell-move-in-animation gameTable cellGradient';
+  cells[i].className = "cell-move-in-animation gameTable cellGradient";
 
   if (i > 0) {
     setTimeout(animateTable, 10, i - 1);
@@ -397,7 +435,7 @@ const shuffleBoard = () => {
   // Add new table with new cells
   createTable(activeCellNumbers);
 
-  selectedCell = -1;  // resetting this, no cells are selected after shuffling le board
+  selectedCell = -1; // resetting this, no cells are selected after shuffling le board
 
   if (isStuck()) {
     shuffleBoard();
@@ -422,30 +460,36 @@ const cellPressed = (cellId) => {
           hideCell(cellId);
           selectedCell = -1;
 
-          countMove('correct');
+          countMove("correct");
 
-          if (boardEmpty()) {               // checking if user has won the game
+          if (boardEmpty()) {
+            // checking if user has won the game
             endGame(true);
             return;
           }
 
-          if (isStuck()) {                  // because cells changed, must check if game is stuck
+          if (isStuck()) {
+            // because cells changed, must check if game is stuck
             shuffleBoard();
           }
-        } else {                            // selected 2 cells with different values, so wrong move
-          makeDeselected(selectedCell);     // change previously selected cell to default color
-          makeSelected(cellId);             // select the clicked cell!
-          countMove('wrong');
+        } else {
+          // selected 2 cells with different values, so wrong move
+          makeDeselected(selectedCell); // change previously selected cell to default color
+          makeSelected(cellId); // select the clicked cell!
+          countMove("wrong");
         }
-      } else {                              // clicked a cell that cannot be removed, so wrong move
-        makeDeselected(selectedCell);       // deselect the selected cell
+      } else {
+        // clicked a cell that cannot be removed, so wrong move
+        makeDeselected(selectedCell); // deselect the selected cell
         selectedCell = -1;
-        countMove('wrong');
+        countMove("wrong");
       }
-    } else if (cellId === selectedCell) {   // clicked on the same cell twice, deselecting it
-      makeDeselected(cellId);               // (does not count as a wrong move)
+    } else if (cellId === selectedCell) {
+      // clicked on the same cell twice, deselecting it
+      makeDeselected(cellId); // (does not count as a wrong move)
       selectedCell = -1;
-    } else if (canBeRemoved(cellId)) {      // there is no selected cell, selecting the clicked one
+    } else if (canBeRemoved(cellId)) {
+      // there is no selected cell, selecting the clicked one
       makeSelected(cellId);
     }
   }
@@ -458,7 +502,7 @@ const cellPressed = (cellId) => {
  */
 const mouseOver = (cellId) => {
   if (cellId !== selectedCell && cellIsActive(cellId) && canBeRemoved(cellId)) {
-    cells[cellId].className = 'gameTable mouseOverCellGradient';
+    cells[cellId].className = "gameTable mouseOverCellGradient";
   }
 };
 
@@ -469,15 +513,8 @@ const mouseOver = (cellId) => {
  */
 const mouseOut = (cellId) => {
   if (cellId !== selectedCell && cellIsActive(cellId) && canBeRemoved(cellId)) {
-    cells[cellId].className = 'gameTable cellGradient';
+    cells[cellId].className = "gameTable cellGradient";
   }
-};
-
-const gimmeTitle = () => {
-  document.getElementById('title').innerHTML = '&#3900;&#32;&#12388;&#32;&#9685;&#95;&#9685;&#32;&#3901;&#12388; Mahjong';
-  setTimeout(() => {
-    document.getElementById('title').innerHTML = 'Mahjong';
-  }, 500);
 };
 
 /**
@@ -490,37 +527,33 @@ const gimmeTitle = () => {
  */
 const makeMahjongArray = (leWidth, leHeight, difficulty) => {
   const numbers = new Array(leWidth * leHeight);
-  const limit = numbers.length / (2 ** difficulty);     // 8, 4 or 2
+  const limit = numbers.length / 2 ** difficulty; // 8, 4 or 2
 
   const iLoops = 2 ** difficulty;
   for (let i = 0; i < iLoops; i += 1) {
     for (let j = 0; j < limit; j += 1) {
-      numbers[(i * limit) + j] = j;
+      numbers[i * limit + j] = j;
     }
   }
 
   return shuffle(numbers);
 };
 
-/**
- * Create "New Game" button
- */
-const createNewGameButton = () => {
-  const button = document.createElement('input');
-  button.type = 'button';
-  button.value = 'New game';
-  button.onclick = () => {
-    window.location = 'index.html';
-  };
-  document.getElementById('nGButton').appendChild(button);
-};
 
 /**
  * Add the timer that counts the time, on the bottom bar :D
  */
-const addTimerToBottomBar = () => {
-  document.getElementById('timeCounter').innerHTML = `${count} seconds`;
-};
+function addTimerToBottomBar() {
+  document.getElementById("timeCounter").innerHTML = `${count} <br />seconds`;
+
+  var elem = document.getElementById("myProgress");
+  var height = 100;
+   id = setInterval(frame, count * 10);
+  function frame() {
+    height--;
+    elem.style.height = height + "%";
+  }
+}
 
 /* Function to initialize move counters */
 const initMoveCounters = () => {
@@ -532,7 +565,7 @@ const initMoveCounters = () => {
 /**
  * Countdown timer
  */
-const timer = () => {
+function timer() {
   count -= 1;
 
   // If time is up, user lost the game
@@ -543,62 +576,57 @@ const timer = () => {
   }
 
   // If user didn't lose the game
-  document.getElementById('timeCounter').innerHTML = `${count}${(count === 1) ? ' second' : ' seconds'}`;
+  document.getElementById("timeCounter").innerHTML = `${count}${
+    count === 1 ? " second" : " seconds"
+  }`;
   if (count === 10) {
-    document.getElementsByTagName('body')[0].className = 'timeIsUp-animation';
+    document.getElementsByTagName("body")[0].className = "timeIsUp-animation";
   }
-};
+}
 
 /**
  * Start counting down until game over
  */
-const initTimer = () => {
-  totalTime = 300;          // 300 seconds = 5 minutes
+function initTimer() {
+  totalTime = 100 * difficulty; // 300 seconds = 5 minutes
   count = totalTime;
   counter = setInterval(timer, 1000);
 
   addTimerToBottomBar();
-};
+}
 
 /**
  * Call the functions that add things to the bottom bar
  * (below the mahjong board)
  */
-const addThingsToBottomBar = () => {
-  createNewGameButton();
+function addThingsToBottomBar() {
   initTimer();
   initMoveCounters();
-  document.getElementById('bottomBar').className = 'bottomBar-animation';
-};
+  document.getElementById("bottomBar").className = "bottomBar-animation";
+}
 
 /**
  * Start the game
  */
-const startGame = () => {
-  // Get variables from html page
-  const size = document.getElementById('sizeSlider').value;
-
-  // Subtract from 4, so 3 is hardest, 1 is easiest (the opposite of the slider's value)
-  const difficulty = 4 - document.getElementById('difficultySlider').value;
-
+function startGame() {
   // Remove settings
-  const div = document.getElementById('startscreenDiv');
+  const div = document.getElementById("startscreenDiv");
   div.parentNode.removeChild(div);
 
   // Create the table
-  table = document.createElement('table');  // global variable
-  table.setAttribute('class', 'gameTable');
-  table.id = 'theTable';
+  table = document.createElement("table"); // global variable
+  table.setAttribute("class", "gameTable");
+  table.id = "theTable" + difficulty;
 
   tableHeight = 2 * size;
   tableWidth = 4 * size;
 
   const numbers = makeMahjongArray(tableWidth, tableHeight, difficulty);
-  makeGlobalColorsArray(numbers.length / (2 ** difficulty));
+  makeGlobalColorsArray(numbers.length / 2 ** difficulty);
 
-  createTable(numbers);    // the function also creates the global array cells
+  createTable(numbers); // the function also creates the global array cells
 
-  selectedCell = -1;       // global variable with selected cell
+  selectedCell = -1; // global variable with selected cell
 
   // Shuffle the board if there are no moves to make
   if (isStuck()) {
@@ -606,10 +634,44 @@ const startGame = () => {
   }
 
   // Add the table to the page
-  document.getElementById('divTable').appendChild(table);
+  document.getElementById("divTable").appendChild(table);
 
   animateTable(cells.length - 1);
 
   // Add the new game button and other things to the bottom bar
   addThingsToBottomBar();
-};
+}
+
+function startGame2() {
+  // Remove settings
+  //const div = document.getElementById("theTable");
+  //div.parentNode.removeChild(div);
+
+  // Create the table
+  table = document.createElement("table"); // global variable
+  table.setAttribute("class", "gameTable");
+  table.id = `theTable${difficulty}`;
+
+  tableHeight = 2 * size;
+  tableWidth = 4 * size;
+
+  const numbers = makeMahjongArray(tableWidth, tableHeight, difficulty);
+  makeGlobalColorsArray(numbers.length / 2 ** difficulty);
+
+  createTable(numbers); // the function also creates the global array cells
+
+  selectedCell = -1; // global variable with selected cell
+
+  // Shuffle the board if there are no moves to make
+  if (isStuck()) {
+    shuffleBoard();
+  }
+
+  // Add the table to the page
+  document.getElementById("divTable").appendChild(table);
+
+  animateTable(cells.length - 1);
+
+  // Add the new game button and other things to the bottom bar
+  addThingsToBottomBar();
+}
